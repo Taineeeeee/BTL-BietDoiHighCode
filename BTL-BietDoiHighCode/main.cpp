@@ -4,7 +4,8 @@
 #include <algorithm>
 #include <iomanip>
 #include <fstream>
-#include"Display.cpp"
+#include"Display.h"
+
 int main() {
     Management manager;
     manager.addShipper(); //example

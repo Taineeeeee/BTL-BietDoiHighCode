@@ -1,4 +1,4 @@
-#pragma once
+
 #ifndef SHIPMENT_H
 #define SHIPMENT_H
 
@@ -16,20 +16,15 @@ enum ShipmentStatus { Pending, InTransit, Delivered, Returned };
 
 enum PaymentStatus { Unpaid, Paid };
 
-std::string dateToString(const Date& date) {
-    return std::to_string(date.day) + "/" + std::to_string(date.month) + "/" + std::to_string(date.year);
-}
+std::string dateToString(const Date& date);
 
 class Shipment {
-
 private:
-
     Date sendDate, receiveDate;
     PaymentStatus paymentStatus;
     ShipmentStatus status;
     Person sender, receiver;
     std::string goodsInfo, ShipmentId;
-
 public:
 
     Shipment(const std::string& ShipmentId, const Date& sendDate, const Date& receiveDate, const Person& sender, const Person& receiver, const std::string& goodsInfo, ShipmentStatus status, PaymentStatus paymentStatus);

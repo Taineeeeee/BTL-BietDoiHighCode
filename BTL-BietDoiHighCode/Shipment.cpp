@@ -5,8 +5,11 @@
 #include <iomanip>
 #include <fstream>
 #include"Shipment.h"
-    
-    
+
+    std::string dateToString(const Date& date) {
+    return std::to_string(date.day) + "/" + std::to_string(date.month) + "/" + std::to_string(date.year);
+    }
+
     Shipment::Shipment(const std::string& ShipmentId, const Date& sendDate, const Date& receiveDate, const Person& sender, const Person& receiver, const std::string& goodsInfo, ShipmentStatus status, PaymentStatus paymentStatus)
         : ShipmentId(ShipmentId), sendDate(sendDate), receiveDate(receiveDate), sender(sender), receiver(receiver), goodsInfo(goodsInfo), status(status), paymentStatus(paymentStatus) {}
 
@@ -16,7 +19,6 @@
     const Date& Shipment::getReceiveDate() const { return receiveDate; }
 
     Person& Shipment::getSender() { return sender; }
-
     Person& Shipment::getReceiver() { return receiver; }
 
     void Shipment::displayShipment() const {
@@ -40,7 +42,7 @@
         std::cout << std::string(100, '-');
         std::cout << "\n";
     }
-    // Hàm xuất dữ liệu của đơn hàng ra file
+
     void Shipment::exportDataShipment(std::ofstream& out) const {
         out << "ID: " << ShipmentId << " | ";
         out << "Send Date: " << dateToString(sendDate) << " | ";
@@ -56,5 +58,3 @@
         out << "Tel Receiver: " << receiver.getTel() << "\n";
         out << "-----------------------\n";
     }
-
-    

@@ -1,74 +1,71 @@
-#pragma once
 #ifndef MANAGEMENT_H
 #define MANAGEMENT_H
 
 #include <iostream>
-#include <vector>
 #include <string>
-#include <algorithm>
 #include <iomanip>
 #include <fstream>
-#include"Person.h"
-#include"Shipment.h"
-#include"Shipper.h"
+#include "Person.h"
+#include "Shipment.h"
+#include "Shipper.h"
+#include "LinkedList.h"
 
 class Management {
-
 private:
-
-    std::vector<Person> senders;
-    std::vector<Person> receivers;
-    std::vector<Shipment> Shipments;
-    std::vector<Shipper> shippers;
+    LinkedList<Person> senders;
+    LinkedList<Person> receivers;
+    LinkedList<Shipment> shipments;
+    LinkedList<Shipper> shippers;
 
 public:
-    void addPerson(std::vector<Person>& list, const std::string& role) ;
+    // Các phương thức của lớp Management
+    void addPerson(LinkedList<Person>& list, const std::string& role);
 
-    void printAllPersons(const std::vector<Person>& list, const std::string& role) const;
+    void printAllPersons(const LinkedList<Person>& list, const std::string& role) const;
 
-    void deletePerson(std::vector<Person>& list, const std::string& role) ;
+    void deletePerson(LinkedList<Person>& list, const std::string& role);
 
-    void updatePerson(std::vector<Person>& list, const std::string& role);
+    void updatePerson(LinkedList<Person>& list, const std::string& role);
 
-    void findPerson(const std::vector<Person>& list, const std::string& role) const ;
+    void findPerson(const LinkedList<Person>& list, const std::string& role) const;
 
-    void sortPersonById(std::vector<Person>& list, bool ascending = true) ;
+    void sortPersonById(LinkedList<Person>& list, bool ascending = true);
 
-    void exportToFile(const std::vector<Person>& list, const std::string& filename, const std::string& role) ;
-
-    //---------//
-
-    void addShipment(std::vector<Shipment>& list, std::vector<Person>& senders, std::vector<Person>& receivers) ;
-
-    void printAllShipments(const std::vector<Shipment> list) const ;
-
-    void deleteShipment(std::vector<Shipment>& list, std::vector<Person>& senders, std::vector<Person>& receivers) ;
-
-    void updateShipment(std::vector<Shipment>& list) ;
-
-    void findShipment(std::vector<Shipment>& list) const ;
-
-    void exportToFileShipment(const std::vector<Shipment>& list, std::string filename, std::vector<Person>& senders, std::vector<Person>& receivers);
-
-    void sortShipmentsById(std::vector<Shipment>& list, bool ascending = true) ;
-
-    void sortShipmentsByDate(std::vector<Shipment>& Shipments, bool ascending = true) ;
+    void exportToFile(const LinkedList<Person>& list, const std::string& filename, const std::string& role);
 
     //---------//
 
-    void printAllShippers(const std::vector<Shipper>& list) const ;
+    void addShipment(LinkedList<Shipment>& list, LinkedList<Person>& senders, LinkedList<Person>& receivers);
 
-    void setShipperStatus(std::vector<Shipper>& shippers);
+    void printAllShipments(const LinkedList<Shipment>& list) const;
 
-    void exportToFileShipper(const std::vector<Shipper>& shippers, std::string filename) ;
+    void deleteShipment(LinkedList<Shipment>& list, LinkedList<Person>& senders, LinkedList<Person>& receivers);
+
+    void updateShipment(LinkedList<Shipment>& list);
+
+    void findShipment(const LinkedList<Shipment>& list) const;
+
+    void sortShipmentsById(LinkedList<Shipment>& list, bool ascending = true);
+
+    void sortShipmentsByDate(LinkedList<Shipment>& shipments, bool ascending = true);
+
+    void exportToFileShipment(const LinkedList<Shipment>& list, std::string filename, LinkedList<Person>& senders, LinkedList<Person>& receivers);
+
+    //---------//
+
+    void printAllShippers(const LinkedList<Shipper>& list) const;
+
+    void setShipperStatus(LinkedList<Shipper>& shippers);
+
+    void exportToFileShipper(const LinkedList<Shipper>& shippers, std::string filename);
 
     //---thêm dữ liệu lấy ví dụ---//
 
-    void addSenders() ;
+    void addSenders();
 
-    void addReceivers() ;
+    void addReceivers();
 
-    void addShipper() ;
+    void addShipper();
 
     friend void displayMenuManagement(Management& manager);
     friend void displaySenderMenu(Management& manager);

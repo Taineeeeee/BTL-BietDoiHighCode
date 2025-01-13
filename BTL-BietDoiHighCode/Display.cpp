@@ -4,14 +4,7 @@
 #include <algorithm>
 #include <iomanip>
 #include <fstream>
-#include"Person.h"
-#include"Person.cpp"
-#include"Shipment.h"
-#include"Shipment.cpp"
-#include"Shipper.h"
-#include"Shipper.cpp"
-#include"Management.h"
-#include"Management.cpp"
+#include "Display.h"
 
 void displayMenuManagement(Management& manager) {
     int choice;
@@ -25,7 +18,7 @@ void displayMenuManagement(Management& manager) {
         std::cout << "==               4.Shipper Management               ==\n";
         std::cout << "==               5.Exit                             ==\n";
         std::cout << "======================================================\n";
-        std::cout <<" Enter your choice:"; 
+        std::cout <<" Enter your choice: ";
         std::cin >> choice;
 
         switch (choice) {
@@ -67,7 +60,7 @@ void displaySenderMenu(Management& manager) {
         std::cout << "==               7.Export Sender List To File         ==\n";
         std::cout << "==               8.Return To Main Menu                ==\n";
         std::cout << "========================================================\n";
-        std::cout <<" Enter your choice:"; 
+        std::cout <<" Enter your choice:";
         std::cin >> choice;
 
         switch (choice) {
@@ -139,7 +132,7 @@ void displayReceiverMenu(Management& manager) {
         std::cout << "==               7.Export Receiver List To File         ==\n";
         std::cout << "==               8.Return To Main Menu                  ==\n";
         std::cout << "==========================================================\n";
-        std::cout <<" Enter your choice:"; 
+        std::cout <<" Enter your choice:";
         std::cin >> choice;
 
         switch (choice) {
@@ -182,7 +175,7 @@ void displayReceiverMenu(Management& manager) {
             std::string fname;
             std::cout << "Enter the filename: ";
             std::cin >> fname;
-            manager.exportToFile(manager.receivers, fname, "Receiver"); 
+            manager.exportToFile(manager.receivers, fname, "Receiver");
             std::cout<<"\nExport File Successfully !\n";}
               system("pause");
               break;
@@ -212,24 +205,24 @@ void displayShipmentMenu(Management& manager) {
         std::cout << "==               8.Export Shipment List To File         ==\n";
         std::cout << "==               9.Return To Main Menu                  ==\n";
         std::cout << "==========================================================\n";
-        std::cout <<" Enter your choice:"; 
+        std::cout <<" Enter your choice:";
         std::cin >> choice;
 
         switch (choice) {
         case 1:
-            manager.addShipment(manager.Shipments, manager.senders, manager.receivers);
+            manager.addShipment(manager.shipments, manager.senders, manager.receivers);
             break;
         case 2:
-            manager.printAllShipments(manager.Shipments);
+            manager.printAllShipments(manager.shipments);
             break;
         case 3:
-            manager.deleteShipment(manager.Shipments, manager.senders, manager.receivers);
+            manager.deleteShipment(manager.shipments, manager.senders, manager.receivers);
             break;
         case 4:
-            manager.updateShipment(manager.Shipments);
+            manager.updateShipment(manager.shipments);
             break;
         case 5:
-            manager.findShipment(manager.Shipments);
+            manager.findShipment(manager.shipments);
             break;
         case 6:
             system("CLS");
@@ -237,13 +230,13 @@ void displayShipmentMenu(Management& manager) {
             std::cout << "1. Ascending\n2. Descending" << std::endl;
             std::cout << "Enter your choice: "; std::cin >> ShipmentChoice;
             if (ShipmentChoice == 1) {
-                manager.sortShipmentsById(manager.Shipments, true);
-                std::cout << "Shipments sorted by ID (Ascending)!" << std::endl;
+                manager.sortShipmentsById(manager.shipments, true);
+                std::cout << "shipments sorted by ID (Ascending)!" << std::endl;
                 system("pause");
             }
             else if (ShipmentChoice == 2) {
-                manager.sortShipmentsById(manager.Shipments, false);
-                std::cout << "Shipments sorted by ID (Descending)!" << std::endl;
+                manager.sortShipmentsById(manager.shipments, false);
+                std::cout << "shipments sorted by ID (Descending)!" << std::endl;
                 system("pause");
             }
             else {
@@ -256,13 +249,13 @@ void displayShipmentMenu(Management& manager) {
             std::cout << "1. Ascending\n2. Descending" << std::endl;
             std::cout << "Enter your choice: "; std::cin >> dateChoice;
             if (dateChoice == 1) {
-                manager.sortShipmentsByDate(manager.Shipments, true);
-                std::cout << "Shipments sorted by Date (Ascending)!" << std::endl;
+                manager.sortShipmentsByDate(manager.shipments, true);
+                std::cout << "shipments sorted by Date (Ascending)!" << std::endl;
                 system("pause");
             }
             else if (dateChoice == 2) {
-                manager.sortShipmentsByDate(manager.Shipments, false);
-                std::cout << "Shipments sorted by Date (Descending)!" << std::endl;
+                manager.sortShipmentsByDate(manager.shipments, false);
+                std::cout << "shipments sorted by Date (Descending)!" << std::endl;
                 system("pause");
             }
             else {
@@ -274,10 +267,9 @@ void displayShipmentMenu(Management& manager) {
             std::string fname;
             std::cout << "Enter the filename: ";
             std::cin >> fname;
-            manager.exportToFileShipment(manager.Shipments, fname, manager.senders, manager.receivers);
+            manager.exportToFileShipment(manager.shipments, fname, manager.senders, manager.receivers);
             std::cout<<"\nExport File Successfully !\n";
         }
-
               system("pause");
               break;
         case 9:
@@ -301,7 +293,7 @@ void displayShipperMenu(Management& manager) {
         std::cout << "==               3.Export Shipper List To File         ==\n";
         std::cout << "==               4.Return To Main Menu                 ==\n";
         std::cout << "=========================================================\n";
-        std::cout <<" Enter your choice:"; 
+        std::cout <<" Enter your choice:";
         std::cin >> choice;
 
         switch (choice) {
