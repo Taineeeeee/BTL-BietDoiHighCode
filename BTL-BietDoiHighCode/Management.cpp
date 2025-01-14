@@ -4,8 +4,9 @@
 #include <algorithm>
 #include <iomanip>
 #include <fstream>
-#include"Management.h"
+#include "Management.h"
 
+// Thêm một người vào danh sách (sender hoặc receiver)
 void Management::addPerson(LinkedList<Person>& list, const std::string& role) {
     system("CLS");
     std::string name, address, id, tel;
@@ -14,9 +15,16 @@ void Management::addPerson(LinkedList<Person>& list, const std::string& role) {
     std::cin >> id;
     std::cin.ignore();
 
-    Node<Person>* current = list.find(id);
+    bool idExists = false;
 
-    if (current != NULL) {
+    // Kiểm tra xem ID đã tồn tại trong danh sách chưa
+    list.for_each([&id, &idExists](const Person& p) {
+        if (p.id == id) {
+            idExists = true;
+        }
+        });
+
+    if (idExists) {
         std::cout << role << " with ID " << id << " already exists. Please enter a new ID.\n";
         system("pause");
         return;
@@ -32,11 +40,12 @@ void Management::addPerson(LinkedList<Person>& list, const std::string& role) {
     std::cin >> tel;
     std::cin.ignore();
 
-    list.emplace_back(name, address, id, tel);
+    list.push_back(Person(name, address, id, tel));
     std::cout << role << " added successfully!\n";
     system("pause");
 }
 
+// Hiển thị tất cả người trong danh sách (senders hoặc receivers)
 void Management::printAllPersons(const LinkedList<Person>& list, const std::string& role) const {
     system("CLS");
     std::cout << std::left
@@ -46,24 +55,29 @@ void Management::printAllPersons(const LinkedList<Person>& list, const std::stri
         << std::setw(16) << "Tel"
         << std::setw(10) << "Shipments" << std::endl;
 
-    std::cout << std::string(81, '-');
-    std::cout << "\n";
-    for (const auto& person : list) {
+    std::cout << std::string(81, '-') << "\n";
+    list.for_each([](const Person& person) {
         person.displayPerson();
-    }
+        });
     system("pause");
 }
 
+// Xóa một người khỏi danh sách (sender hoặc receiver)
 void Management::deletePerson(LinkedList<Person>& list, const std::string& role) {
     system("CLS");
     std::string id;
     std::cout << "Enter " << role << " ID to delete: ";
     std::cin >> id;
 
-    Node<Person>* current = list.find(id);
+    Node<Person>* current = list.find([id](const Person& p) {
+        return p.id == id;
+        });
 
-    if (current != NULL) {
-        list.remove(current->data);
+    if (current) {
+        list.remove([id](const Person& p) {
+            return p.id == id;
+            });
+
         std::cout << role << " with ID " << id << " deleted successfully!\n";
         system("pause");
     }
@@ -73,16 +87,19 @@ void Management::deletePerson(LinkedList<Person>& list, const std::string& role)
     }
 }
 
+// Cập nhật thông tin của một người trong danh sách (sender hoặc receiver)
 void Management::updatePerson(LinkedList<Person>& list, const std::string& role) {
     system("CLS");
     std::string id;
     std::cout << "Enter " << role << " ID to update: ";
     std::cin >> id;
 
-    Node<Person>* current = list.find(id);
+    Node<Person>* current = list.find([id](const Person& p) {
+        return p.id == id;
+        });
 
-    if (current != NULL) {
-        Person& personToUpdate = *current;
+    if (current) {
+        Person& personToUpdate = current->data;
         int choice;
         std::cout << role << " found! What do you want to update?\n";
         std::cout << "1. Name\n2. Address\n3. Telephone\nEnter your choice: ";
@@ -129,6 +146,7 @@ void Management::updatePerson(LinkedList<Person>& list, const std::string& role)
     }
 }
 
+// Tìm kiếm một người trong danh sách (sender hoặc receiver)
 void Management::findPerson(const LinkedList<Person>& list, const std::string& role) const {
     system("CLS");
     std::string id;
@@ -136,10 +154,12 @@ void Management::findPerson(const LinkedList<Person>& list, const std::string& r
     std::cin >> id;
     std::cin.ignore();
 
-    Node<Person>* current = list.find(id);
+    Node<Person>* current = list.find([id](const Person& p) {
+        return p.id == id;
+        });
 
-    if (current != NULL) {
-        current->displayPerson();
+    if (current) {
+        current->data.displayPerson();
         system("pause");
     }
     else {
@@ -148,27 +168,51 @@ void Management::findPerson(const LinkedList<Person>& list, const std::string& r
     }
 }
 
+// Sắp xếp danh sách người theo ID (tăng dần hoặc giảm dần)
 void Management::sortPersonById(LinkedList<Person>& list, bool ascending) {
-    std::sort(list.begin(), list.end(),
-        [ascending](const Person& a, const Person& b) {
-            return ascending ? (a.getId() < b.getId()) : (a.getId() > b.getId());
-        });
-    return;
+    if (list.get_size() <= 1) {
+        return;
+    }
+
+    bool swapped;
+    do {
+        swapped = false;
+        Node<Person>* current = list.getHead();
+        Node<Person>* prev = nullptr;
+
+        while (current->next) {
+            bool shouldSwap = ascending ? (current->data.getId() > current->next->data.getId())
+                : (current->data.getId() < current->next->data.getId());
+
+            if (shouldSwap) {
+                std::swap(current->data, current->next->data);
+                swapped = true;
+            }
+            prev = current;
+            current = current->next;
+        }
+    } while (swapped);
 }
 
-void Management::exportToFile(const LinkedList<Person>& list, const std::string& filename, const std::string& role) {
-    std::ofstream outFile(filename);
+// Xuất danh sách người ra file
+void Management::exportToFilePerson(const LinkedList<Person>& people, std::string filename, const std::string& role) {
+    std::ofstream outFile(filename + ".txt");
     if (!outFile.is_open()) {
         std::cerr << "Could not open the file!" << std::endl;
         return;
     }
-    outFile << role << ":\n";
-    outFile << "==============================\n";
-    for (const auto& person : list) {
-        person.exportData(outFile);
-    }
+
+    outFile << role << "\n";
+    outFile << "=================================\n";
+
+    people.for_each([&outFile](const Person& person) {
+        person.exportDataPerson(outFile);
+        });
+
+    outFile.close();
 }
-//---------//
+
+// Thêm một shipment mới vào danh sách
 void Management::addShipment(LinkedList<Shipment>& list, LinkedList<Person>& senders, LinkedList<Person>& receivers) {
     system("CLS");
     int status, pstatus;
@@ -177,33 +221,32 @@ void Management::addShipment(LinkedList<Shipment>& list, LinkedList<Person>& sen
 
     std::cout << "Enter the information for new Shipment" << std::endl;
 
-    auto findPersonById = [](LinkedList<Person>& persons, std::string id) -> Person& {
-        for (auto& person : persons) {
-            if (person.getId() == id) {
-                return person;
+    auto findPersonById = [](LinkedList<Person>& persons, const std::string& id) -> Person* {
+        Person* result = nullptr;
+        persons.for_each([&id, &result](const Person& person) {
+            if (person.id == id) {
+                result = const_cast<Person*>(&person);
             }
-        }
-        throw std::runtime_error("Person with ID not found.");
+            });
+        return result;
     };
 
-    auto findShipmentById = [&list](std::string id) -> bool {
-        for (auto& Shipment : list) {
-            if (Shipment.getShipmentId() == id) {
-                return true;
+    auto findShipmentById = [&list](const std::string& id) -> bool {
+        bool exists = false;
+        list.for_each([&id, &exists](const Shipment& shipment) {
+            if (shipment.getShipmentId() == id) {
+                exists = true;
             }
-        }
-        return false;
+            });
+        return exists;
     };
 
     std::cout << "Enter the Sender ID: ";
     std::cin >> senderId;
 
-    Person* sender = nullptr;
-    try {
-        sender = &findPersonById(senders, senderId);
-    }
-    catch (const std::runtime_error& e) {
-        std::cerr << e.what() << std::endl;
+    Person* sender = findPersonById(senders, senderId);
+    if (!sender) {
+        std::cerr << "Sender with ID " << senderId << " not found." << std::endl;
         system("pause");
         return;
     }
@@ -211,12 +254,9 @@ void Management::addShipment(LinkedList<Shipment>& list, LinkedList<Person>& sen
     std::cout << "Enter the Receiver ID: ";
     std::cin >> receiverId;
 
-    Person* receiver = nullptr;
-    try {
-        receiver = &findPersonById(receivers, receiverId);
-    }
-    catch (const std::runtime_error& e) {
-        std::cerr << e.what() << std::endl;
+    Person* receiver = findPersonById(receivers, receiverId);
+    if (!receiver) {
+        std::cerr << "Receiver with ID " << receiverId << " not found." << std::endl;
         system("pause");
         return;
     }
@@ -247,37 +287,42 @@ void Management::addShipment(LinkedList<Shipment>& list, LinkedList<Person>& sen
     system("pause");
 }
 
-void Management::printAllShipments(const LinkedList<Shipment> list) const {
+// Hiển thị tất cả shipments trong danh sách
+void Management::printAllShipments(const LinkedList<Shipment>& list) const {
     system("CLS");
     std::cout << "All Shipments:\n";
-    for (const auto& Shipment : list) {
-        Shipment.displayShipment();
-    }
+
+    list.for_each([](const Shipment& shipment) {
+        shipment.displayShipment();
+        });
+
     system("pause");
 }
 
+// Xóa một shipment khỏi danh sách
 void Management::deleteShipment(LinkedList<Shipment>& list, LinkedList<Person>& senders, LinkedList<Person>& receivers) {
     system("CLS");
     std::string id;
     std::cout << "Enter Shipment ID to delete: ";
     std::cin >> id;
 
-    // Tìm kiếm shipment trong danh sách liên kết
-    Node<Shipment>* shipmentNode = list.find(id);
+    Node<Shipment>* shipmentNode = list.find([id](const Shipment& o) {
+        return o.getShipmentId() == id;
+        });
 
-    if (shipmentNode != NULL) {
-        // Hàm tìm kiếm Person trong LinkedList
+    if (shipmentNode) {
         auto findPersonById = [](LinkedList<Person>& persons, const std::string& id) -> Person* {
-            Node<Person>* current = persons.find(id);
+            Node<Person>* current = persons.find([id](const Person& p) {
+                return p.getId() == id;
+                });
             if (current) {
                 return &(current->data);
             }
-            return nullptr; // Trả về nullptr nếu không tìm thấy
+            return nullptr;
         };
 
-        // Tìm sender và receiver
-        Person* sender = findPersonById(senders, shipmentNode->data.getSenderId());
-        Person* receiver = findPersonById(receivers, shipmentNode->data.getReceiverId());
+        Person* sender = findPersonById(senders, shipmentNode->data.sender.getId());
+        Person* receiver = findPersonById(receivers, shipmentNode->data.receiver.getId());
 
         if (!sender || !receiver) {
             std::cerr << "Error: Sender or Receiver not found!" << std::endl;
@@ -285,12 +330,12 @@ void Management::deleteShipment(LinkedList<Shipment>& list, LinkedList<Person>& 
             return;
         }
 
-        // Giảm số lượng shipments của sender và receiver
         sender->totalShipments--;
         receiver->totalShipments--;
 
-        // Xóa shipment khỏi danh sách
-        list.remove(shipmentNode->data);
+        list.remove([id](const Shipment& shipment) {
+            return shipment.getShipmentId() == id;
+            });
 
         std::cout << "Shipment with ID " << id << " deleted successfully!\n";
         system("pause");
@@ -300,15 +345,19 @@ void Management::deleteShipment(LinkedList<Shipment>& list, LinkedList<Person>& 
         system("pause");
     }
 }
+
+// Cập nhật thông tin của một shipment
 void Management::updateShipment(LinkedList<Shipment>& list) {
     system("CLS");
     std::string id;
     std::cout << "Enter Shipment ID to update: ";
     std::cin >> id;
 
-    Node<Shipment>* shipmentNode = list.find(id);
+    Node<Shipment>* it = list.find([id](const Shipment& shipment) {
+        return shipment.ShipmentId == id;
+        });
 
-    if (shipmentNode != NULL) {
+    if (it) {
         int choice;
         bool updateAgain = true;
 
@@ -326,35 +375,33 @@ void Management::updateShipment(LinkedList<Shipment>& list) {
 
             switch (choice) {
             case 1: {
-                // Update Send Date
                 Date newSendDate;
                 std::cout << "Enter new Send Date (day month year): ";
                 std::cin >> newSendDate.day >> newSendDate.month >> newSendDate.year;
-                it->sendDate = newSendDate;
+                it->data.sendDate = newSendDate;
                 std::cout << "Shipment with ID " << id << "'s Send Date updated successfully!" << std::endl;
                 system("pause");
                 break;
             }
             case 2: {
-                // Update Receive Date
                 Date newReceiveDate;
                 std::cout << "Enter new Receive Date (day month year): ";
                 std::cin >> newReceiveDate.day >> newReceiveDate.month >> newReceiveDate.year;
-                it->receiveDate = newReceiveDate;
+                it->data.receiveDate = newReceiveDate;
                 std::cout << "Shipment with ID " << id << "'s Receive Date updated successfully!" << std::endl;
                 system("pause");
                 break;
             }
             case 3: {
                 std::cout << "Enter new Shipment Status: Pending (0) / InTransit (1) / Delivered (2) / Returned (3): ";
-                int statusChoice; std::cin >> statusChoice; it->status = static_cast<ShipmentStatus>(statusChoice);
+                int statusChoice; std::cin >> statusChoice; it->data.status = static_cast<ShipmentStatus>(statusChoice);
                 std::cout << "Shipment with ID " << id << "'s Status updated successfully!" << std::endl;
                 system("pause");
                 break;
             }
             case 4: {
                 std::cout << "Enter new Payment Status: Unpaid (0) / Paid (1): ";
-                int pstatusChoice; std::cin >> pstatusChoice; it->paymentStatus = static_cast<PaymentStatus>(pstatusChoice);
+                int pstatusChoice; std::cin >> pstatusChoice; it->data.paymentStatus = static_cast<PaymentStatus>(pstatusChoice);
                 std::cout << "Shipment with ID " << id << "'s Payment Status updated successfully!" << std::endl;
                 system("pause");
                 break;
@@ -364,7 +411,7 @@ void Management::updateShipment(LinkedList<Shipment>& list) {
                 std::cout << "Enter new Goods Info: ";
                 std::cin.ignore();
                 std::getline(std::cin, newGoodsInfo);
-                it->goodsInfo = newGoodsInfo;
+                it->data.goodsInfo = newGoodsInfo;
                 std::cout << "Shipment with ID " << id << "'s Goods Info updated successfully!" << std::endl;
                 system("pause");
                 break;
@@ -384,16 +431,19 @@ void Management::updateShipment(LinkedList<Shipment>& list) {
     }
 }
 
-void Management::findShipment(LinkedList<Shipment>& list) const {
+// Tìm kiếm một shipment trong danh sách
+void Management::findShipment(const LinkedList<Shipment>& list) const {
     system("CLS");
     std::string id;
     std::cout << "Enter Shipment ID to find: ";
     std::cin >> id;
 
-    Node<Shipment>* shipmentNode = list.find(id);
+    Node<Shipment>* foundNode = list.find([id](const Shipment& shipment) {
+        return shipment.getShipmentId() == id;
+        });
 
-    if (shipmentNode != NULL) {
-        it->displayShipment();
+    if (foundNode) {
+        foundNode->data.displayShipment();
         system("pause");
     }
     else {
@@ -402,39 +452,84 @@ void Management::findShipment(LinkedList<Shipment>& list) const {
     }
 }
 
-void Management::exportToFileShipment(const LinkedList<Shipment>& list, std::string filename, LinkedList<Person>& senders, LinkedList<Person>& receivers) {
-    std::ofstream outFile(filename);
+// Xuất danh sách shipments ra file
+void Management::exportToFileShipment(const LinkedList<Shipment>& shipments, std::string filename, LinkedList<Person>& senders, LinkedList<Person>& receivers) {
+    std::ofstream outFile(filename + ".txt");
     if (!outFile.is_open()) {
         std::cerr << "Could not open the file!" << std::endl;
         return;
     }
-    outFile << "ShipmentS" << "\n";
-    outFile << "==============================\n";
-    for (const auto& Shipment : list) {
-        Shipment.exportDataShipment(outFile);
-    }
-}
 
-void Management::sortShipmentsById(LinkedList<Shipment>& list, bool ascending) {
-    std::sort(list.begin(), list.end(),
-        [ascending](const Shipment& a, const Shipment& b) {
-            return ascending ? (a.ShipmentId < b.ShipmentId) : (a.ShipmentId > b.ShipmentId);
+    outFile << "SHIPMENT" << "\n";
+    outFile << "=================================\n";
+
+    shipments.for_each([&outFile](const Shipment& shipment) {
+        shipment.exportDataShipment(outFile);
         });
-    return;
+
+    outFile.close();
 }
 
+// Sắp xếp danh sách shipments theo ID (tăng dần hoặc giảm dần)
+void Management::sortShipmentsById(LinkedList<Shipment>& list, bool ascending) {
+    if (list.get_size() <= 1) {
+        return;
+    }
+
+    bool swapped;
+    do {
+        swapped = false;
+        Node<Shipment>* current = list.getHead();
+        Node<Shipment>* prev = nullptr;
+
+        while (current->next) {
+            bool shouldSwap = ascending ? (current->data.getShipmentId() > current->next->data.getShipmentId())
+                : (current->data.getShipmentId() < current->next->data.getShipmentId());
+
+            if (shouldSwap) {
+                std::swap(current->data, current->next->data);
+                swapped = true;
+            }
+            prev = current;
+            current = current->next;
+        }
+    } while (swapped);
+}
+
+// So sánh hai ngày
 int compareDates(const Date& d1, const Date& d2) {
     if (d1.year != d2.year) return d1.year < d2.year;
     if (d1.month != d2.month) return d1.month < d2.month;
     return d1.day < d2.day;
 }
 
-void Management::sortShipmentsByDate(LinkedList<Shipment>& Shipments, bool ascending) {
-    std::sort(Shipments.begin(), Shipments.end(), [this, ascending](const Shipment& a, const Shipment& b) {
-        return ascending ? compareDates(a.getSendDate(), b.getSendDate()) : compareDates(b.getSendDate(), a.getSendDate());
-        });
+// Sắp xếp danh sách shipments theo ngày (tăng dần hoặc giảm dần)
+void Management::sortShipmentsByDate(LinkedList<Shipment>& list, bool ascending) {
+    if (list.get_size() <= 1) {
+        return;
+    }
+
+    bool swapped;
+    do {
+        swapped = false;
+        Node<Shipment>* current = list.getHead();
+        Node<Shipment>* prev = nullptr;
+
+        while (current->next) {
+            bool shouldSwap = ascending ? !compareDates(current->data.getSendDate(), current->next->data.getSendDate())
+                : compareDates(current->data.getSendDate(), current->next->data.getSendDate());
+
+            if (shouldSwap) {
+                std::swap(current->data, current->next->data);
+                swapped = true;
+            }
+            prev = current;
+            current = current->next;
+        }
+    } while (swapped);
 }
-//---------//
+
+// Hiển thị tất cả shippers trong danh sách
 void Management::printAllShippers(const LinkedList<Shipper>& list) const {
     system("CLS");
     std::cout << std::left
@@ -442,46 +537,57 @@ void Management::printAllShippers(const LinkedList<Shipper>& list) const {
         << std::setw(20) << "Name"
         << std::setw(16) << "Tel"
         << std::setw(10) << "Shipper Status" << std::endl;
-    std::cout << std::string(81, '-');
-    std::cout << "\n";
-    for (const auto& person : list) {
-        person.displayShipper();
-    }
+    std::cout << std::string(81, '-') << "\n";
+    list.for_each([](const Shipper& shipper) {
+        shipper.displayShipper();
+        });
     system("pause");
 }
 
+// Cập nhật trạng thái của một shipper
 void Management::setShipperStatus(LinkedList<Shipper>& shippers) {
     system("CLS");
     std::string id;
     std::cout << "Enter Shipper ID to update status: ";
     std::cin >> id;
 
-    Node<Shipper>* shipperNode = list.find(id);
-    if (shipperNode != NULL) {
+    Node<Shipper>* foundNode = shippers.find([id](const Shipper& shipper) {
+        return shipper.shipperId == id;
+        });
+
+    if (foundNode) {
         std::cout << "Enter new Shipper Status: ReadyToDeliver (0) / Delivering (1): ";
-        int newStatus; std::cin >> newStatus; it->shipperStatus = static_cast<ShipperStatus>(newStatus);
+        int newStatus;
+        std::cin >> newStatus;
+        foundNode->data.shipperStatus = static_cast<ShipperStatus>(newStatus);
         std::cout << "Shipper with ID " << id << "'s status updated successfully!" << std::endl;
         system("pause");
     }
     else {
-        std::cout << "Shipment with ID " << id << " not found!" << std::endl;
+        std::cout << "Shipper with ID " << id << " not found!" << std::endl;
         system("pause");
     }
 }
 
+// Xuất danh sách shippers ra file
 void Management::exportToFileShipper(const LinkedList<Shipper>& shippers, std::string filename) {
-    std::ofstream outFile(filename);
+    std::ofstream outFile(filename + ".txt");
     if (!outFile.is_open()) {
         std::cerr << "Could not open the file!" << std::endl;
         return;
     }
+
     outFile << "SHIPPER" << "\n";
     outFile << "=================================\n";
-    for (const auto& shipper : shippers) {
+
+    shippers.for_each([&outFile](const Shipper& shipper) {
         shipper.exportDataShipper(outFile);
-    }
+        });
+
+    outFile.close();
 }
 
+// Thêm danh sách senders mẫu
 void Management::addSenders() {
     senders.push_back(Person("John Smith", "Hometown", "002", "0123456789", 0));
     senders.push_back(Person("Emily Johnson", "Springfield", "003", "0987654321", 0));
@@ -494,6 +600,8 @@ void Management::addSenders() {
     senders.push_back(Person("James Miller", "Cedar Ridge", "010", "0102030405", 0));
     senders.push_back(Person("Ashley Jackson", "Oakwood", "011", "0112233445", 0));
 }
+
+// Thêm danh sách receivers mẫu
 void Management::addReceivers() {
     receivers.push_back(Person("Matthew White", "Green Acres", "012", "0123245678", 0));
     receivers.push_back(Person("Elizabeth Lopez", "Golden Heights", "013", "0133456789", 0));
@@ -506,6 +614,8 @@ void Management::addReceivers() {
     receivers.push_back(Person("David Walker", "Lakeside", "020", "0200123456", 0));
     receivers.push_back(Person("Grace Hall", "Valley View", "021", "0211234567", 0));
 }
+
+// Thêm danh sách shippers mẫu
 void Management::addShipper() {
     shippers.push_back(Shipper("Nguyen Viet Anh", "01", "0866986596", ShipperStatus::ReadyToDeliver));
     shippers.push_back(Shipper("Phung Thanh Thuy", "02", "0123888888", ShipperStatus::ReadyToDeliver));
@@ -518,4 +628,3 @@ void Management::addShipper() {
     shippers.push_back(Shipper("Tran Thi Anh", "09", "0866555555", ShipperStatus::ReadyToDeliver));
     shippers.push_back(Shipper("Nguyen Thanh Tu", "10", "9999999999", ShipperStatus::ReadyToDeliver));
 }
-
