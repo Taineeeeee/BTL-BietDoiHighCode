@@ -14,11 +14,9 @@ void Management::addPerson(LinkedList<Person>& list, const std::string& role) {
     std::cin >> id;
     std::cin.ignore();
 
-    auto it = std::find_if(list.begin(), list.end(), [id](const Person& p) {
-        return p.id == id;
-        });
+    Node<Person>* current = list.find(id);
 
-    if (it != list.end()) {
+    if (current != NULL) {
         std::cout << role << " with ID " << id << " already exists. Please enter a new ID.\n";
         system("pause");
         return;
@@ -62,11 +60,9 @@ void Management::deletePerson(LinkedList<Person>& list, const std::string& role)
     std::cout << "Enter " << role << " ID to delete: ";
     std::cin >> id;
 
-    Node<Person>* current = list.find([id](const Person& p) {
-        return p.getId() == id;
-        });
+    Node<Person>* current = list.find(id);
 
-    if (current) {
+    if (current != NULL) {
         list.remove(current->data);
         std::cout << role << " with ID " << id << " deleted successfully!\n";
         system("pause");
@@ -83,12 +79,10 @@ void Management::updatePerson(LinkedList<Person>& list, const std::string& role)
     std::cout << "Enter " << role << " ID to update: ";
     std::cin >> id;
 
-    auto it = std::find_if(list.begin(), list.end(), [id](const Person& p) {
-        return p.id == id;
-        });
+    Node<Person>* current = list.find(id);
 
-    if (it != list.end()) {
-        Person& personToUpdate = *it;
+    if (current != NULL) {
+        Person& personToUpdate = *current;
         int choice;
         std::cout << role << " found! What do you want to update?\n";
         std::cout << "1. Name\n2. Address\n3. Telephone\nEnter your choice: ";
@@ -142,12 +136,10 @@ void Management::findPerson(const LinkedList<Person>& list, const std::string& r
     std::cin >> id;
     std::cin.ignore();
 
-    auto it = std::find_if(list.begin(), list.end(), [id](const Person& p) {
-        return p.id == id;
-        });
+    Node<Person>* current = list.find(id);
 
-    if (it != list.end()) {
-        it->displayPerson();
+    if (current != NULL) {
+        current->displayPerson();
         system("pause");
     }
     else {
@@ -271,16 +263,12 @@ void Management::deleteShipment(LinkedList<Shipment>& list, LinkedList<Person>& 
     std::cin >> id;
 
     // Tìm kiếm shipment trong danh sách liên kết
-    Node<Shipment>* shipmentNode = list.find([id](const Shipment& o) {
-        return o.getShipmentId() == id;
-        });
+    Node<Shipment>* shipmentNode = list.find(id);
 
-    if (shipmentNode) {
+    if (shipmentNode != NULL) {
         // Hàm tìm kiếm Person trong LinkedList
         auto findPersonById = [](LinkedList<Person>& persons, const std::string& id) -> Person* {
-            Node<Person>* current = persons.find([id](const Person& p) {
-                return p.getId() == id;
-                });
+            Node<Person>* current = persons.find(id);
             if (current) {
                 return &(current->data);
             }
@@ -318,9 +306,9 @@ void Management::updateShipment(LinkedList<Shipment>& list) {
     std::cout << "Enter Shipment ID to update: ";
     std::cin >> id;
 
-    auto it = std::find_if(list.begin(), list.end(), [id](const Shipment& o) { return o.ShipmentId == id; });
+    Node<Shipment>* shipmentNode = list.find(id);
 
-    if (it != list.end()) {
+    if (shipmentNode != NULL) {
         int choice;
         bool updateAgain = true;
 
@@ -402,11 +390,9 @@ void Management::findShipment(LinkedList<Shipment>& list) const {
     std::cout << "Enter Shipment ID to find: ";
     std::cin >> id;
 
-    auto it = std::find_if(list.begin(), list.end(), [id](const Shipment& o) {
-        return o.getShipmentId() == id;
-        });
+    Node<Shipment>* shipmentNode = list.find(id);
 
-    if (it != list.end()) {
+    if (shipmentNode != NULL) {
         it->displayShipment();
         system("pause");
     }
@@ -470,8 +456,8 @@ void Management::setShipperStatus(LinkedList<Shipper>& shippers) {
     std::cout << "Enter Shipper ID to update status: ";
     std::cin >> id;
 
-    auto it = std::find_if(shippers.begin(), shippers.end(), [id](const Shipper& o) { return o.shipperId == id; });
-    if (it != shippers.end()) {
+    Node<Shipper>* shipperNode = list.find(id);
+    if (shipperNode != NULL) {
         std::cout << "Enter new Shipper Status: ReadyToDeliver (0) / Delivering (1): ";
         int newStatus; std::cin >> newStatus; it->shipperStatus = static_cast<ShipperStatus>(newStatus);
         std::cout << "Shipper with ID " << id << "'s status updated successfully!" << std::endl;

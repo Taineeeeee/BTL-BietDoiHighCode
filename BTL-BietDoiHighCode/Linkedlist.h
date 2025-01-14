@@ -67,15 +67,15 @@ public:
     }
 
     // Find an element in the list
-    Node<T>* find(const T& value) const {
+    Node<T>* find(int search_id) {
         Node<T>* current = head;
         while (current) {
-            if (current->data == value) {
-                return current;
+            if (current->data.id == search_id) {
+                return current;  // Trả về phần tử tìm thấy
             }
             current = current->next;
         }
-        return nullptr;
+        return nullptr;  // Không tìm thấy phần tử nào thỏa mãn
     }
 
     // Clear the list
