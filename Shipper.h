@@ -8,10 +8,11 @@
 #include <algorithm>
 #include <iomanip>
 #include <fstream>
-
+#include "Linkedlist.h"
+#include "ListElement.h"
 enum ShipperStatus { ReadyToDeliver, Delivering };
 
-class Shipper {
+class Shipper: public ListElement {
 
 private:
 

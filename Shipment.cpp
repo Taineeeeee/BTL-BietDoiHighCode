@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <fstream>
 #include"Shipment.h"
+#include"Linkedlist.h"
     
     
     Shipment::Shipment(const std::string& ShipmentId, const Date& sendDate, const Date& receiveDate, const Person& sender, const Person& receiver, const std::string& goodsInfo, ShipmentStatus status, PaymentStatus paymentStatus)

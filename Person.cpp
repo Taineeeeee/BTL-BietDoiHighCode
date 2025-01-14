@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <fstream>
 #include"Person.h"
+#include"Linkedlist.h"
      
     Person::Person(const std::string& name, const std::string& address, const std::string& id, const std::string& tel, int totalShipments )
         : name(name), address(address), id(id), tel(tel), totalShipments(totalShipments) {}
@@ -15,11 +16,11 @@
 
     void Person::displayPerson() const {
         std::cout << std::left
-            << std::setw(10) << id
-            << std::setw(20) << name
-            << std::setw(20) << address
-            << std::setw(16) << tel
-            << std::setw(10) << totalShipments << std::endl;
+            <<std::setw(10)<<id
+            <<std::setw(20)<<name
+            <<std::setw(20)<<address
+            << std::setw(16)<<tel
+            << std::setw(10)<<totalShipments << std::endl;
     }
 
     void Person::displayPersonForShipment() const {

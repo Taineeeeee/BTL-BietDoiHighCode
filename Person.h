@@ -8,8 +8,10 @@
 #include <algorithm>
 #include <iomanip>
 #include <fstream>
+#include "Linkedlist.h"
+#include "ListElement.h"
 
-class Person {
+class Person : public ListElement {
 
 private:
 

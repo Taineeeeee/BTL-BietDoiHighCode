@@ -9,7 +9,8 @@
 #include <iomanip>
 #include <fstream>
 #include"Person.h"
-
+#include "Linkedlist.h"
+#include "ListElement.h"
 struct Date { int day, month, year; };
 
 enum ShipmentStatus { Pending, InTransit, Delivered, Returned };
@@ -20,7 +21,7 @@ std::string dateToString(const Date& date) {
     return std::to_string(date.day) + "/" + std::to_string(date.month) + "/" + std::to_string(date.year);
 }
 
-class Shipment {
+class Shipment : public ListElement {
 
 private:
 
