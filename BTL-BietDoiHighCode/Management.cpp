@@ -213,10 +213,10 @@ void Management::exportToFilePerson(const LinkedList<Person>& people, std::strin
 }
 
 // Thêm một shipment mới vào danh sách
-void Management::addShipment(LinkedList<Shipment>& list, LinkedList<Person>& senders, LinkedList<Person>& receivers) {
+void Management::addShipment(LinkedList<Shipment>& list, LinkedList<Person>& senders, LinkedList<Person>& receivers, LinkedList<Shipper>& shippers) {
     system("CLS");
     int status, pstatus;
-    std::string goods, ShipmentId, senderId, receiverId;
+    std::string goods, ShipmentId, senderId, receiverId, shipperId;
     Date sDate, rDate;
 
     std::cout << "Enter the information for new Shipment" << std::endl;
@@ -227,7 +227,7 @@ void Management::addShipment(LinkedList<Shipment>& list, LinkedList<Person>& sen
             if (person.id == id) {
                 result = const_cast<Person*>(&person);
             }
-            });
+        });
         return result;
     };
 
@@ -237,8 +237,18 @@ void Management::addShipment(LinkedList<Shipment>& list, LinkedList<Person>& sen
             if (shipment.getShipmentId() == id) {
                 exists = true;
             }
-            });
+        });
         return exists;
+    };
+
+    auto findShipperById = [](LinkedList<Shipper>& shippers, const std::string& id) -> Shipper* {
+        Shipper* result = nullptr;
+        shippers.for_each([&id, &result](Shipper& shipper) {
+            if (shipper.getShipperId() == id) {
+                result = &shipper;
+            }
+        });
+        return result;
     };
 
     std::cout << "Enter the Sender ID: ";
@@ -270,6 +280,16 @@ void Management::addShipment(LinkedList<Shipment>& list, LinkedList<Person>& sen
         return;
     }
 
+    std::cout << "Enter the Shipper ID: ";
+    std::cin >> shipperId;
+
+    Shipper* shipper = findShipperById(shippers, shipperId);
+    if (!shipper) {
+        std::cerr << "Shipper with ID " << shipperId << " not found." << std::endl;
+        system("pause");
+        return;
+    }
+
     std::cout << "Send Date (day month year): "; std::cin >> sDate.day >> sDate.month >> sDate.year;
     std::cout << "Receive Date (day month year): "; std::cin >> rDate.day >> rDate.month >> rDate.year;
     std::cin.ignore();
@@ -282,10 +302,15 @@ void Management::addShipment(LinkedList<Shipment>& list, LinkedList<Person>& sen
 
     sender->totalShipments++;
     receiver->totalShipments++;
+    shipper->totalShipments++;
 
-    std::cout << "Shipment added successfully!" << std::endl;
+    // Thêm đơn hàng vào danh sách của shipper
+    shipper->addShipment(newShipment);
+
+    std::cout << "Shipment added successfully and assigned to Shipper with ID " << shipperId << "!" << std::endl;
     system("pause");
 }
+
 
 // Hiển thị tất cả shipments trong danh sách
 void Management::printAllShipments(const LinkedList<Shipment>& list) const {
@@ -587,6 +612,28 @@ void Management::exportToFileShipper(const LinkedList<Shipper>& shippers, std::s
     outFile.close();
 }
 
+//Hiển thị thông tin đơn hàng của 1 shipper
+void Management::viewShipmentsByShipper(LinkedList<Shipper>& shippers, const std::string& shipperId) {
+    auto findShipperById = [](LinkedList<Shipper>& shippers, const std::string& id) -> Shipper* {
+        Shipper* result = nullptr;
+        shippers.for_each([&id, &result](Shipper& shipper) {
+            if (shipper.getShipperId() == id) {
+                result = &shipper;
+            }
+        });
+        return result;
+    };
+
+    Shipper* shipper = findShipperById(shippers, shipperId);
+    if (!shipper) {
+        std::cerr << "Shipper with ID " << shipperId << " not found." << std::endl;
+        return;
+    }
+
+    std::cout << "Shipments assigned to Shipper ID " << shipperId << ":\n";
+    shipper->displayAllShipments(); // Hiển thị tất cả đơn hàng của shipper
+}
+
 // Thêm danh sách senders mẫu
 void Management::addSenders() {
     senders.push_back(Person("John Smith", "Hometown", "002", "0123456789", 0));
@@ -617,14 +664,14 @@ void Management::addReceivers() {
 
 // Thêm danh sách shippers mẫu
 void Management::addShipper() {
-    shippers.push_back(Shipper("Nguyen Viet Anh", "01", "0866986596", ShipperStatus::ReadyToDeliver));
-    shippers.push_back(Shipper("Phung Thanh Thuy", "02", "0123888888", ShipperStatus::ReadyToDeliver));
-    shippers.push_back(Shipper("Tran Cong Tai", "03", "0234999999", ShipperStatus::ReadyToDeliver));
-    shippers.push_back(Shipper("Nguyen Thi Tu", "04", "0345777777", ShipperStatus::ReadyToDeliver));
-    shippers.push_back(Shipper("Phung Anh Tai", "05", "0456111111", ShipperStatus::ReadyToDeliver));
-    shippers.push_back(Shipper("Tran Viet Tu", "06", "0567222222", ShipperStatus::ReadyToDeliver));
-    shippers.push_back(Shipper("Nguyen Cong Thanh", "07", "0678333333", ShipperStatus::ReadyToDeliver));
-    shippers.push_back(Shipper("Phung Viet Thuy", "08", "0789444444", ShipperStatus::ReadyToDeliver));
-    shippers.push_back(Shipper("Tran Thi Anh", "09", "0866555555", ShipperStatus::ReadyToDeliver));
-    shippers.push_back(Shipper("Nguyen Thanh Tu", "10", "9999999999", ShipperStatus::ReadyToDeliver));
+    shippers.push_back(Shipper("Nguyen Viet Anh", "01", "0866986596", ShipperStatus::ReadyToDeliver,0));
+    shippers.push_back(Shipper("Phung Thanh Thuy", "02", "0123888888", ShipperStatus::ReadyToDeliver,0));
+    shippers.push_back(Shipper("Tran Cong Tai", "03", "0234999999", ShipperStatus::ReadyToDeliver,0));
+    shippers.push_back(Shipper("Nguyen Thi Tu", "04", "0345777777", ShipperStatus::ReadyToDeliver,0));
+    shippers.push_back(Shipper("Phung Anh Tai", "05", "0456111111", ShipperStatus::ReadyToDeliver,0));
+    shippers.push_back(Shipper("Tran Viet Tu", "06", "0567222222", ShipperStatus::ReadyToDeliver,0));
+    shippers.push_back(Shipper("Nguyen Cong Thanh", "07", "0678333333", ShipperStatus::ReadyToDeliver,0));
+    shippers.push_back(Shipper("Phung Viet Thuy", "08", "0789444444", ShipperStatus::ReadyToDeliver,0));
+    shippers.push_back(Shipper("Tran Thi Anh", "09", "0866555555", ShipperStatus::ReadyToDeliver,0));
+    shippers.push_back(Shipper("Nguyen Thanh Tu", "10", "9999999999", ShipperStatus::ReadyToDeliver,0));
 }

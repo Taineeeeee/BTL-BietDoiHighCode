@@ -214,7 +214,7 @@ void displayShipmentMenu(Management& manager) {
 
         switch (choice) {
         case 1:
-            manager.addShipment(manager.shipments, manager.senders, manager.receivers); // Thêm lô hàng
+            manager.addShipment(manager.shipments, manager.senders, manager.receivers, manager.shippers); // Thêm lô hàng
             break;
         case 2:
             manager.printAllShipments(manager.shipments); // In danh sách lô hàng
@@ -297,7 +297,8 @@ void displayShipperMenu(Management& manager) {
         std::cout << "==               1.Print Shipper List                  ==\n";
         std::cout << "==               2.Set Shipper Status                  ==\n";
         std::cout << "==               3.Export Shipper List To File         ==\n";
-        std::cout << "==               4.Return To Main Menu                 ==\n";
+        std::cout << "==               4.View All Shipments of a Shipper     ==\n";
+        std::cout << "==               5.Return To Main Menu                 ==\n";
         std::cout << "=========================================================\n";
         std::cout << "Enter your choice: ";
         std::cin >> choice;
@@ -316,15 +317,25 @@ void displayShipperMenu(Management& manager) {
             std::cin >> fname;
             manager.exportToFileShipper(manager.shippers, fname); // Xuất danh sách shipper ra file
             fflush;
-            std::cout << "\nExport File Successfully !\n"; }
-              system("pause");
-              break;
-        case 4:
+            std::cout << "\nExport File Successfully !\n";
+            system("pause");
+            break;
+        }
+        case 4: {
+            std::string shipperId;
+            system("CLS");
+            std::cout << "Enter Shipper ID: ";
+            std::cin >> shipperId;
+            manager.viewShipmentsByShipper(manager.shippers, shipperId); // Hiển thị đơn hàng của shipper
+            system("pause");
+            break;
+        }
+        case 5:
             return; // Quay lại menu chính
         default:
             std::cout << "Invalid choice! Please try again.\n"; // Thông báo lỗi nếu lựa chọn không hợp lệ
             system("pause");
             break;
         }
-    } while (choice != 4);
+    } while (choice != 5);
 }

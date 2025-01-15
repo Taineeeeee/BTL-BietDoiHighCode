@@ -104,7 +104,7 @@ public:
     }
 
     // Duyệt qua từng phần tử trong danh sách và áp dụng hàm func
-    void for_each(std::function<void(const T&)> func) const {
+    void for_each(std::function<void(T&)> func) const {
         Node<T>* current = head;
         while (current) {
             func(current->data); // Áp dụng hàm func lên dữ liệu của node

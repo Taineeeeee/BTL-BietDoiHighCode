@@ -40,7 +40,7 @@ public:
     void exportToFilePerson(const LinkedList<Person>& people, std::string filename, const std::string& role);
 
     // Thêm một lô hàng vào danh sách
-    void addShipment(LinkedList<Shipment>& list, LinkedList<Person>& senders, LinkedList<Person>& receivers);
+    void addShipment(LinkedList<Shipment>& list, LinkedList<Person>& senders, LinkedList<Person>& receivers, LinkedList<Shipper>& shippers);
 
     // In ra tất cả lô hàng trong danh sách
     void printAllShipments(const LinkedList<Shipment>& list) const;
@@ -71,6 +71,9 @@ public:
 
     // Xuất danh sách shipper ra file
     void exportToFileShipper(const LinkedList<Shipper>& shippers, std::string filename);
+
+    //Hiển thị thông tin đơn hàng của 1 shipper
+    void viewShipmentsByShipper(LinkedList<Shipper>& shippers, const std::string& shipperId);
 
     // Thêm dữ liệu mẫu vào danh sách người gửi
     void addSenders();
